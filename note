@@ -1,0 +1,78 @@
+How i Push this Project Folder to repo:
+------------------------------------------
+
+D:\Projects\TRMC_WEB_APP\With Python\GUI\TrmController20250707>echo "# TRM-CONTROLLER" >> README.md
+D:\Projects\TRMC_WEB_APP\With Python\GUI\TrmController20250707>git init
+Reinitialized existing Git repository in D:/Projects/TRMC_WEB_APP/With Python/GUI/TrmController20250707/.git/
+
+D:\Projects\TRMC_WEB_APP\With Python\GUI\TrmController20250707>git add README.md
+D:\Projects\TRMC_WEB_APP\With Python\GUI\TrmController20250707>git commit -m "first commit"
+[main (root-commit) 049c888] first commit
+ 1 file changed, 1 insertion(+)
+ create mode 100644 README.md
+
+D:\Projects\TRMC_WEB_APP\With Python\GUI\TrmController20250707>git branch -M main
+D:\Projects\TRMC_WEB_APP\With Python\GUI\TrmController20250707>git remote add origin https://github.com/PavanKumar2621/TRM-CONTROLLER.git
+D:\Projects\TRMC_WEB_APP\With Python\GUI\TrmController20250707>git push -u origin main
+Enumerating objects: 3, done.
+Counting objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 236 bytes | 12.00 KiB/s, done.
+Total 3 (delta 0), reused 0 (delta 0), pack-reused 0 (from 0)
+To https://github.com/PavanKumar2621/TRM-CONTROLLER.git
+ * [new branch]      main -> main
+branch 'main' set up to track 'origin/main'.
+
+D:\Projects\TRMC_WEB_APP\With Python\GUI\TrmController20250707>echo venv/ > .gitignore
+D:\Projects\TRMC_WEB_APP\With Python\GUI\TrmController20250707>echo __pycache__/ >> .gitignore
+D:\Projects\TRMC_WEB_APP\With Python\GUI\TrmController20250707>echo *.pyc >> .gitignore
+D:\Projects\TRMC_WEB_APP\With Python\GUI\TrmController20250707>echo *.pyo >> .gitignore
+D:\Projects\TRMC_WEB_APP\With Python\GUI\TrmController20250707>echo *.pyd >> .gitignore
+D:\Projects\TRMC_WEB_APP\With Python\GUI\TrmController20250707>echo .vscode/ >> .gitignore
+D:\Projects\TRMC_WEB_APP\With Python\GUI\TrmController20250707>echo .idea/ >> .gitignore
+D:\Projects\TRMC_WEB_APP\With Python\GUI\TrmController20250707>git add .
+warning: in the working copy of 'TrmController.pyproject', LF will be replaced by CRLF the next time Git touches it
+
+D:\Projects\TRMC_WEB_APP\With Python\GUI\TrmController20250707>git commit -m "Initial commit: ADDING TRM Controller project files"
+[main 503ec1e] Initial commit: ADDING TRM Controller project files
+ 18 files changed, 17632 insertions(+)
+ create mode 100644 .gitignore
+ create mode 100644 TrmController.pyproject
+ create mode 100644 TrmController.pyproject.user
+ create mode 100644 communication.py
+ create mode 100644 controls.py
+ create mode 100644 dist.rar
+ create mode 100644 main.py
+ create mode 100644 main.spec
+ create mode 100644 rc_resources.py
+ create mode 100644 requirements.txt
+ create mode 100644 resources.qrc
+ create mode 100644 resources/Error.png
+ create mode 100644 resources/Off.png
+ create mode 100644 resources/Ok.png
+ create mode 100644 resources/amp-icon.png
+ create mode 100644 resources/arrow.png
+ create mode 100644 resources/falconx-icon.png
+ create mode 100644 ui_trm_controller.py
+
+D:\Projects\TRMC_WEB_APP\With Python\GUI\TrmController20250707>git push -u origin main
+To https://github.com/PavanKumar2621/TRM-CONTROLLER.git
+ ! [rejected]        main -> main (fetch first)
+error: failed to push some refs to 'https://github.com/PavanKumar2621/TRM-CONTROLLER.git'
+hint: Updates were rejected because the remote contains work that you do not
+hint: have locally. This is usually caused by another repository pushing to
+hint: the same ref. If you want to integrate the remote changes, use
+hint: 'git pull' before pushing again.
+hint: See the 'Note about fast-forwards' in 'git push --help' for details.
+
+D:\Projects\TRMC_WEB_APP\With Python\GUI\TrmController20250707>git push -u origin main --force
+Enumerating objects: 24, done.
+Counting objects: 100% (24/24), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (21/21), done.
+Writing objects: 100% (24/24), 43.94 MiB | 5.39 MiB/s, done.
+Total 24 (delta 0), reused 0 (delta 0), pack-reused 0 (from 0)
+To https://github.com/PavanKumar2621/TRM-CONTROLLER.git
+ + bfa6f16...503ec1e main -> main (forced update)
+branch 'main' set up to track 'origin/main'.
+
+D:\Projects\TRMC_WEB_APP\With Python\GUI\TrmController20250707>
