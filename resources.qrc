@@ -1,0 +1,10 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource prefix="/">
+    <file>resources/amp-icon.png</file>
+    <file>resources/falconx-icon.png</file>	
+	<file>resources/arrow.png</file>
+	<file>resources/Off.png</file>
+	<file>resources/Error.png</file>
+	<file>resources/Ok.png</file>
+</qresource>
+</RCC>
