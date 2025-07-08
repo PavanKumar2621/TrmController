@@ -4,6 +4,7 @@ from PySide6.QtGui import QPixmap
 import serial
 import serial.tools.list_ports
 import time
+from datetime import datetime
 
 class SerialReader(QObject):
     data_received = Signal(bytes)
@@ -123,9 +124,11 @@ class Communication(QObject):
     def sendControl(self, data):
         if self.serial_port and self.serial_port.is_open:
             self.serial_port.write(data)
+            self.consolePrint(data)
             print("Control data sent")
         else:
             print("Serial port is not open")
+            QMessageBox.warning(None, "Error", "Serial port is not open.")
 
     # This method is now handled by the thread, but you can still call it manually if needed
     def receive_data(self, num_bytes=1024):
@@ -180,7 +183,6 @@ class Communication(QObject):
             label.setText(".....")
         self.ui.textbox.clear()
         
-
     # Slot for received data
     def on_data_received(self, data):
         if data[0] == 0xAA and len(data) > 27: 
@@ -193,3 +195,9 @@ class Communication(QObject):
     def on_reader_error(self, error):
         print(f"Serial read error: {error}")
         QMessageBox.warning(None, "Serial Error", error)
+
+    def consolePrint(self, message):
+        timestamp = datetime.now().strftime("%H:%M:%S")
+        hex_message = message.hex("-").upper()
+        formatted_message = f"{timestamp} -> {hex_message}"
+        self.ui.textbox.append(formatted_message)

@@ -1,4 +1,3 @@
-from datetime import datetime
 from PySide6.QtGui import QPixmap
 from PySide6.QtCore import QObject, Signal
 
@@ -43,22 +42,21 @@ class Controls(QObject):
 
     def getStatus(self):
 
-        # data = [ 0x33, 0x01, 0x00, 0x00, 0x00, 0xBB ]
+        data = [ 0x33, 0x01, 0x00, 0x00, 0x00, 0xBB ]
 
-        data = [ 0xAA, 0xFF, 0xFF,  0xAB, 0x3C,
-                0xAB, 0x3C, 0xAB, 0x3C,
-                0xAB, 0x3C, 0xAB, 0x3C,
-                0xAB, 0x3C, 0xAB, 0x3C,
-                0xAB, 0x3C, 0xAB, 0x3C,
-                0xAB, 0x3C, 0xAB, 0x3C,
-                0xAB, 0x3C, 0xAB, 0x3C,
-                0xAB, 0x3C, 0xAB, 0x3C,
-                0xBB ]
+        # data = [ 0xAA, 0xFF, 0xFF,  0xAB, 0x3C,
+        #         0xAB, 0x3C, 0xAB, 0x3C,
+        #         0xAB, 0x3C, 0xAB, 0x3C,
+        #         0xAB, 0x3C, 0xAB, 0x3C,
+        #         0xAB, 0x3C, 0xAB, 0x3C,
+        #         0xAB, 0x3C, 0xAB, 0x3C,
+        #         0xAB, 0x3C, 0xAB, 0x3C,
+        #         0xAB, 0x3C, 0xAB, 0x3C,
+        #         0xBB ]
 
         data_bytes = bytes(data)
         # self.communication.sendControl(data_bytes)
         self.send_control_signal.emit(data_bytes)
-        self.consolePrint(data_bytes)
 
     def getIsolation(self, cmd, channel):
 
@@ -108,7 +106,6 @@ class Controls(QObject):
         
         # self.communication.sendControl(data_bytes)
         self.send_control_signal.emit(data_bytes)
-        self.consolePrint(data_bytes)
 
     def handle_received_data(self, data):
         if not self._should_process:
@@ -177,10 +174,6 @@ class Controls(QObject):
         label_field.setText(f"{combined / 100:.2f} {suffix}")
 
 
-    def consolePrint(self, message):
-        timestamp = datetime.now().strftime("%H:%M:%S")
-        hex_message = message.hex("-").upper()
-        formatted_message = f"{timestamp} -> {hex_message}"
-        self.ui.textbox.append(formatted_message)
+
 
     
