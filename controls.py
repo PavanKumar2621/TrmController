@@ -104,10 +104,6 @@ class Controls(QObject):
         self.send_control_signal.emit(data_bytes)
 
     def handle_received_data(self, data):
-        if not self._should_process:
-            print("Received data ignored (waiting for btnGetStatus)")
-            return
-
         print(f"Processing received data: {data}")
         self._should_process = False
 

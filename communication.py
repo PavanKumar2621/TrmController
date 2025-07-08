@@ -186,6 +186,7 @@ class Communication(QObject):
     # Slot for received data
     def on_data_received(self, data):
         if data[0] == 0xAA and len(data) > 27: 
+            self.consolePrint(data, length=len(data))
             self.data_received_signal.emit(data)
         else:
             print("Invalid data received", data)
@@ -196,8 +197,9 @@ class Communication(QObject):
         print(f"Serial read error: {error}")
         QMessageBox.warning(None, "Serial Error", error)
 
-    def consolePrint(self, message):
+    def consolePrint(self, message, length=0):
         timestamp = datetime.now().strftime("%H:%M:%S")
         hex_message = message.hex("-").upper()
-        formatted_message = f"{timestamp} -> {hex_message}"
+        sym = '<-'if length == 29 else '->'  
+        formatted_message = f"{timestamp} {sym} {hex_message}"
         self.ui.textbox.append(formatted_message)
