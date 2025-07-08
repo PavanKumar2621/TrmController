@@ -48,7 +48,7 @@ class TrmController(QWidget):  # Wrapper class
 
         # Send Control
         self.ui.btnClear.clicked.connect(lambda: self.ui.textbox.clear())
-        self.ui.btnGetStatus.clicked.connect(lambda: (self.controls.enable_processing(), self.controls.getStatus()))
+        self.ui.btnGetStatus.clicked.connect(lambda: self.controls.getStatus())
 
     # To close running Threads
     def closeEvent(self, event):

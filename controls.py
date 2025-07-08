@@ -6,7 +6,6 @@ class Controls(QObject):
     def __init__(self, ui, communication):
         super().__init__()
         self.ui = ui
-        self._should_process = False
         # self.communication = communication
 
     def changeAttTxControls(self, index):
@@ -36,9 +35,6 @@ class Controls(QObject):
         else:
             for ctrl in controls:
                 ctrl.show()
-
-    def enable_processing(self):
-        self._should_process = True
 
     def getStatus(self):
 
