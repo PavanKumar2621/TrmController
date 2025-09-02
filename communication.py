@@ -1,6 +1,6 @@
-from PySide6.QtWidgets import QComboBox, QMessageBox
-from PySide6.QtCore import QObject, QThread, Signal
-from PySide6.QtGui import QPixmap
+from PySide6.QtWidgets import *
+from PySide6.QtCore import *
+from PySide6.QtGui import * 
 import serial
 import serial.tools.list_ports
 import time
@@ -99,7 +99,7 @@ class Communication(QObject):
                 "   font-size: 16px;"
                 "}"
             )
-            QMessageBox.warning(None, "Connection", f"Failed to connect to {com_port}.\n{e}")
+            QMessageBox.warning(None, "Connection", f"Failed to connect to {com_port}.")
             self.set_all_icons_off()
 
     def start_reader(self):
@@ -200,6 +200,6 @@ class Communication(QObject):
     def consolePrint(self, message, length=0):
         timestamp = datetime.now().strftime("%H:%M:%S")
         hex_message = message.hex("-").upper()
-        sym = '<-'if length == 29 else '->'  
+        sym = '<-'if length == 28 else '->'  
         formatted_message = f"{timestamp} {sym} {hex_message}"
         self.ui.textbox.append(formatted_message)

@@ -1,5 +1,5 @@
-from PySide6.QtGui import QPixmap
-from PySide6.QtCore import QObject, Signal
+from PySide6.QtGui import *
+from PySide6.QtCore import *
 
 class Controls(QObject):
     send_control_signal = Signal(bytes)
@@ -36,26 +36,29 @@ class Controls(QObject):
             for ctrl in controls:
                 ctrl.show()
 
+    #Mode Selection
+    def changeRND(self, event):
+        if self.ui.masterCheck.isVisible():
+            self.ui.masterGB.hide()
+            self.ui.masterCheck.hide()
+            self.ui.rndGB.show()
+            self.ui.rndCheck.show()
+        else:
+            self.ui.rndGB.hide()
+            self.ui.rndCheck.hide()
+            self.ui.masterGB.show()
+            self.ui.masterCheck.show()  
+
     def getStatus(self):
 
         data = [ 0x33, 0x01, 0x00, 0x00, 0x00, 0xBB ]
-
-        # data = [ 0xAA, 0xFF, 0xFF,  0xAB, 0x3C,
-        #         0xAB, 0x3C, 0xAB, 0x3C,
-        #         0xAB, 0x3C, 0xAB, 0x3C,
-        #         0xAB, 0x3C, 0xAB, 0x3C,
-        #         0xAB, 0x3C, 0xAB, 0x3C,
-        #         0xAB, 0x3C, 0xAB, 0x3C,
-        #         0xAB, 0x3C, 0xAB, 0x3C,
-        #         0xAB, 0x3C, 0xAB, 0x3C,
-        #         0xBB ]
+        # data = [0xAA, 0x01, 0x02, 0xBC, 0x0A, 0x23, 0x01, 0x56, 0x04, 0x89, 0x07, 0xF0, 0x00, 0xA2, 0x01, 0xB3, 0x02, 0xC4, 0x03, 0xD5, 0x04, 0xE6, 0x05, 0xF7, 0x06, 0xF8, 0x07, 0xBB  ]
 
         data_bytes = bytes(data)
         # self.communication.sendControl(data_bytes)
         self.send_control_signal.emit(data_bytes)
 
     def getIsolation(self, cmd, channel):
-
         # Dwell
         if cmd == 0:
             tx_attenuations = [getattr(self.ui, f'attTxCh{i}').currentIndex() for i in range(1, 9)]
@@ -66,24 +69,24 @@ class Controls(QObject):
 
         # Tx Calibration
         elif cmd == 1:
-            if 0 <= channel <= 7:
-                att = getattr(self.ui, f'attTxCh{channel+1}').currentIndex()
-                ph = getattr(self.ui, f'phTxCh{channel+1}').currentIndex()
-                data = [0xAA, cmd + 1, channel, 0x00, 0x00, att, ph, 0xBB]
+            att = getattr(self.ui, f'attTxCh{channel}').currentIndex()
+            ph  = getattr(self.ui, f'phTxCh{channel}').currentIndex()
+            data = [0xAA, cmd + 1, channel, 0x00, 0x00, att, ph, 0xBB]
         
         # Rx Calibration
         elif cmd == 2:
-            if 0 <= channel <= 7:
-                att = getattr(self.ui, f'attRxCh{channel+1}').currentIndex()
-                ph = getattr(self.ui, f'phRxCh{channel+1}').currentIndex()
-                data = [0xAA, cmd + 1, channel, 0x00, 0x00, att, ph, 0xBB]
-                      
+            att = getattr(self.ui, f'attRxCh{channel}').currentIndex()
+            ph  = getattr(self.ui, f'phRxCh{channel}').currentIndex()
+            data = [0xAA, cmd + 1, channel, 0x00, 0x00, att, ph, 0xBB]              
+        
         # Tx Pattern
         elif cmd == 3:
             tx_attenuations = [getattr(self.ui, f'attTxCh{i}').currentIndex() for i in range(1, 9)]
             tx_phases = [getattr(self.ui, f'phTxCh{i}').currentIndex() for i in range(1, 9)]
             data = [0xAA, cmd + 1, channel, 0x00, 0x00, *tx_attenuations, 0x00, *tx_phases, 0xBB]
-                   
+            print(f"tx_attenuations: {tx_attenuations}")
+            print(f"tx_phases: {tx_phases}")
+
         # Rx Pattern    
         elif cmd == 4: 
             rx_attenuations = [getattr(self.ui, f'attRxCh{i}').currentIndex() for i in range(1, 9)]
@@ -98,6 +101,31 @@ class Controls(QObject):
             print("Invalid command")
             return
         
+        data_bytes = bytes(data)
+        # self.communication.sendControl(data_bytes)
+        self.send_control_signal.emit(data_bytes)
+
+    def controlsRND(self):
+        blk_Sw = 1 if self.ui.blkSw.isChecked() else 0
+        tr_CTCL = 1 if self.ui.trCTCL.isChecked() else 0
+        rblk_CTL = self.ui.rblkCTL.currentIndex()
+        lblk_CTL = self.ui.lblkCTL.currentIndex()
+        bite_CNT = self.ui.biteCNT.currentIndex()
+        swlR_CTL = self.ui.swlRCTL.currentIndex()
+        left_Prt = 1 if self.ui.leftPrt.isChecked() else 0
+        rightt_Prt = 1 if self.ui.righttPrt.isChecked() else 0
+
+        bit_data_02 = (                          # for 2 bits
+            ((swlR_CTL & 0b11) << 6) |        
+            ((bite_CNT & 0b11) << 4) |
+            ((lblk_CTL & 0b11) << 2) |
+            ((rblk_CTL & 0b11) << 0)
+        )
+        bit_data_04 = (                         # for 4 bits
+            ((left_Prt & 0b1111) << 4) |
+            ((rightt_Prt& 0b1111) << 0)
+        )
+        data = [0xAA, 0x00, 0x00, blk_Sw, tr_CTCL, bit_data_02, bit_data_04, 0xBB]
         data_bytes = bytes(data)
         
         # self.communication.sendControl(data_bytes)
@@ -144,12 +172,11 @@ class Controls(QObject):
             self.ui.fpLf5, self.ui.fpLf6, self.ui.fpLf7, self.ui.fpLf8,
         ])
         
-
     def updateIcons(self, sys, labels):
         """ Updates multiple labels based on bit positions and prints the bit position. """
         for i, label in enumerate(labels):
             status = (sys >> i) & 1
-            print(f"Bit position {i}: {status}")
+            # print(f"Bit position {i}: {status}")
             self.update_status(label, status)
 
     def update_status(self, label, status):

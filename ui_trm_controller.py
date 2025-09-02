@@ -2,26 +2,25 @@
 ## Designed by Pavan Kumar Madem
 ################################################################################
 
-from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
-    QMetaObject, QObject, QPoint, QRect,
-    QSize, QTime, QUrl, Qt)
-from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
-    QFont, QFontDatabase, QGradient, QIcon,
-    QImage, QKeySequence, QLinearGradient, QPainter,
-    QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QComboBox, QGroupBox, QLabel,
-    QPushButton, QSizePolicy, QTextEdit, QWidget)
+from PySide6.QtCore import *
+from PySide6.QtGui import *
+from PySide6.QtWidgets import *
 
 from communication import Communication
 from controls import Controls
 import rc_resources
-
 
 class TrmController(QWidget):  # Wrapper class
     def __init__(self, parent=None):
         super(TrmController, self).__init__(parent)
         self.ui = Ui_Form()
         self.ui.setupUi(self)
+        
+        # For Testing These masterLabel, masterCheck, rndLabel, rndCheck
+        self.ui.masterLabel.hide()
+        self.ui.masterCheck.hide()
+        self.ui.rndLabel.hide()
+        self.ui.rndCheck.hide()
 
         # Initialize Communication  
         self.communication = Communication(self.ui) 
@@ -41,21 +40,24 @@ class TrmController(QWidget):  # Wrapper class
         self.ui.attRxAllCh.currentIndexChanged.connect(lambda: self.controls.changeAttRxControls(self.ui.attRxAllCh.currentIndex()))
         self.ui.phTxAllCh.currentIndexChanged.connect(lambda: self.controls.changePhTxControls(self.ui.phTxAllCh.currentIndex()))
         self.ui.phRxAllCh.currentIndexChanged.connect(lambda: self.controls.changePhRxControls(self.ui.phRxAllCh.currentIndex()))
+        self.ui.masterCheck.mousePressEvent = self.controls.changeRND
+        self.ui.rndCheck.mousePressEvent = self.controls.changeRND
 
         # Command ID & Channel ID
         self.ui.cmdId.currentIndexChanged.connect(lambda: self.controls.toggleControls(self.ui.cmdId.currentIndex()))
-        self.ui.cmdIdSend.clicked.connect(lambda: self.controls.getIsolation(self.ui.cmdId.currentIndex(), self.ui.chId.currentIndex()))
+        self.ui.cmdIdSend.clicked.connect(lambda: self.controls.getIsolation(self.ui.cmdId.currentIndex(), self.ui.chId.currentIndex() + 1))
 
         # Send Control
         self.ui.btnClear.clicked.connect(lambda: self.ui.textbox.clear())
         self.ui.btnGetStatus.clicked.connect(lambda: self.controls.getStatus())
-
+        self.ui.btnRND.clicked.connect(lambda: self.controls.controlsRND())
+            
     # To close running Threads
     def closeEvent(self, event):
         if self.communication:
             self.communication.stop_reader()
         event.accept()
-        
+
 class Ui_Form(object):
     def setupUi(self, Form):
         if not Form.objectName():
@@ -1745,11 +1747,11 @@ class Ui_Form(object):
         self.attRxAllCh.addItem("")
         self.attRxAllCh.setObjectName(u"attRxAllCh")
         self.attRxAllCh.setGeometry(QRect(130, 150, 61, 22))
-        self.radar_groupbox_14 = QGroupBox(self.groupBox)
-        self.radar_groupbox_14.setObjectName(u"radar_groupbox_14")
-        self.radar_groupbox_14.setGeometry(QRect(590, 180, 581, 221))
-        self.radar_groupbox_14.setFont(font)
-        self.radar_groupbox_14.setStyleSheet(u"QComboBox {\n"
+        self.masterGB = QGroupBox(self.groupBox)
+        self.masterGB.setObjectName(u"masterGB")
+        self.masterGB.setGeometry(QRect(590, 180, 581, 221))
+        self.masterGB.setFont(font)
+        self.masterGB.setStyleSheet(u"QComboBox {\n"
 "    color: white;\n"
 "    background-color: #2a2f3b;\n"
 "    border-radius: 5px;\n"
@@ -1809,7 +1811,7 @@ class Ui_Form(object):
 "    background-color: darkorange;\n"
 "}\n"
 "")
-        self.radar_groupbox_19 = QGroupBox(self.radar_groupbox_14)
+        self.radar_groupbox_19 = QGroupBox(self.masterGB)
         self.radar_groupbox_19.setObjectName(u"radar_groupbox_19")
         self.radar_groupbox_19.setGeometry(QRect(10, 20, 275, 187))
         self.radar_groupbox_19.setFont(font)
@@ -2538,7 +2540,7 @@ class Ui_Form(object):
         self.phTxCh6.addItem("")
         self.phTxCh6.setObjectName(u"phTxCh6")
         self.phTxCh6.setGeometry(QRect(186, 80, 77, 22))
-        self.radar_groupbox_20 = QGroupBox(self.radar_groupbox_14)
+        self.radar_groupbox_20 = QGroupBox(self.masterGB)
         self.radar_groupbox_20.setObjectName(u"radar_groupbox_20")
         self.radar_groupbox_20.setGeometry(QRect(295, 20, 275, 187))
         self.radar_groupbox_20.setFont(font)
@@ -3963,7 +3965,7 @@ class Ui_Form(object):
         self.groupBox_2.setGeometry(QRect(493, 10, 680, 131))
         self.textbox = QTextEdit(self.groupBox_2)
         self.textbox.setObjectName(u"textbox")
-        self.textbox.setGeometry(QRect(7, 10, 665, 111))
+        self.textbox.setGeometry(QRect(7, 9, 665, 112))
         self.textbox.setStyleSheet(u"QTextEdit {\n"
 "    background-color: white;\n"
 "    color: black;\n"
@@ -4034,6 +4036,262 @@ class Ui_Form(object):
 "    background: none;\n"
 "}\n"
 "")
+        self.rndGB = QGroupBox(self.groupBox)
+        self.rndGB.setObjectName(u"rndGB")
+        self.rndGB.setGeometry(QRect(590, 180, 581, 221))
+        self.rndGB.setFont(font)
+        self.rndGB.setStyleSheet(u"QComboBox {\n"
+"    color: white;\n"
+"    background-color: #2a2f3b;\n"
+"    border-radius: 5px;\n"
+"    padding-left: 8px;\n"
+"    padding-right: 25px;  /* reserve space for arrow */\n"
+"    font-size: 12px;\n"
+"	\n"
+"}\n"
+"\n"
+"/* Drop-down list (popup) */\n"
+"QComboBox QAbstractItemView {\n"
+"    background: transparent;             /* remove backside background */\n"
+"    color: white;\n"
+"    selection-background-color: #323741;\n"
+"    selection-color: white;\n"
+"    border: none;                        /* remove border */\n"
+"    outline: 0;\n"
+"    padding-left: 8px;                   /* add space from left */\n"
+"    padding-right: 5px;\n"
+"    border-radius: 5px;\n"
+"    font-size: 15px;\n"
+"}\n"
+"\n"
+"/* Hover effect on closed combo box */\n"
+"QComboBox:hover {\n"
+"    background-color: #323741;\n"
+"}\n"
+"\n"
+"/* Drop-down arrow area (right side) */\n"
+"QComboBox::drop-down {\n"
+"    border: none;                        /* no border */\n"
+"    width: 25px;\n"
+"    subcontrol-origin: padding;\n"
+"   "
+                        " subcontrol-position: top right;\n"
+"    background: transparent;             /* keep transparent */\n"
+"}\n"
+"\n"
+"/* Arrow image */\n"
+"QComboBox::down-arrow {\n"
+"    image: url(:/resources/arrow.png);\n"
+"    width: 12px;\n"
+"    height: 12px;\n"
+"}\n"
+"\n"
+"/* Button styling */\n"
+"QPushButton {\n"
+"    background-color: orange;\n"
+"    color: black;\n"
+"    border: none;\n"
+"    height: 35px;\n"
+"    border-radius: 5px;\n"
+"    font-size: 16px;\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: darkorange;\n"
+"}\n"
+"\n"
+"QCheckBox {\n"
+"    color: white;\n"
+"}\n"
+"")
+        self.radar_groupbox_31 = QGroupBox(self.rndGB)
+        self.radar_groupbox_31.setObjectName(u"radar_groupbox_31")
+        self.radar_groupbox_31.setGeometry(QRect(20, 20, 541, 187))
+        self.radar_groupbox_31.setFont(font)
+        self.radar_groupbox_31.setStyleSheet(u"QComboBox {\n"
+"    color: white;\n"
+"    background-color: #2a2f3b;\n"
+"    border: 1px  #ccc;\n"
+"    border-radius: 5px;\n"
+"    padding-left: 8px;\n"
+"    padding-right: 1px;\n"
+"    font-size: 12px;\n"
+"}\n"
+"/* Hover effect on closed combo box */\n"
+"QComboBox:hover {\n"
+"    background-color: #323741;\n"
+"}\n"
+"/* Drop-down arrow */\n"
+"QComboBox::drop-down {\n"
+"    border: none;\n"
+"    width: 25px;\n"
+"    subcontrol-origin: padding; \n"
+"    subcontrol-position: top right;\n"
+"    background: transparent;\n"
+"}\n"
+"\n"
+"QComboBox::down-arrow {\n"
+"    image: url(:/resources/arrow.png);\n"
+"    width: 12px;\n"
+"    height: 12px;\n"
+"}\n"
+"\n"
+"/* Drop-down popup (list view) with dark theme */\n"
+"QComboBox QAbstractItemView {\n"
+"    background-color: #2a2f3b;              /* dark background */\n"
+"    color: white;                           /* white text */\n"
+"    selection-background-color: #323741;    /* slightly lighter dark when selected */\n"
+"    selection-color: white;\n"
+"    border: 1px so"
+                        "lid #444;                 /* subtle dark border */\n"
+"    padding: 5px;\n"
+"    outline: 0;\n"
+"    border-radius: 5px;\n"
+"}\n"
+"\n"
+"/* Vertical scrollbar inside combo popup */\n"
+"QComboBox QAbstractItemView QScrollBar:vertical {\n"
+"    background: #2a2f3b;           /* dark scrollbar track */\n"
+"    width: 10px;\n"
+"    margin: 2px 0;\n"
+"    border-radius: 5px;\n"
+"}\n"
+"\n"
+"QComboBox QAbstractItemView QScrollBar::handle:vertical {\n"
+"    background: #555;              /* scrollbar handle */\n"
+"    min-height: 20px;\n"
+"    border-radius: 5px;\n"
+"}\n"
+"\n"
+"QComboBox QAbstractItemView QScrollBar::handle:vertical:hover {\n"
+"    background: #777;              /* lighter on hover */\n"
+"}\n"
+"\n"
+"QComboBox QAbstractItemView QScrollBar::add-line:vertical,\n"
+"QComboBox QAbstractItemView QScrollBar::sub-line:vertical {\n"
+"    background: none;\n"
+"    height: 0px;\n"
+"    subcontrol-origin: margin;\n"
+"}\n"
+"\n"
+"QComboBox QAbstractItemView QScrollBar::add-page:vertical,\n"
+"QComboBox QAbstractItemVi"
+                        "ew QScrollBar::sub-page:vertical {\n"
+"    background: none;\n"
+"}\n"
+"\n"
+"QPushButton {\n"
+"background-color: orange;\n"
+"color: black;\n"
+"border: none;\n"
+"height: 35px;\n"
+"border-radius: 5px;\n"
+"font-size: 16px;\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"background-color: darkorange;\n"
+"}\n"
+"\n"
+"")
+        self.label_188 = QLabel(self.radar_groupbox_31)
+        self.label_188.setObjectName(u"label_188")
+        self.label_188.setGeometry(QRect(25, 80, 51, 26))
+        self.label_188.setFont(font2)
+        self.label_190 = QLabel(self.radar_groupbox_31)
+        self.label_190.setObjectName(u"label_190")
+        self.label_190.setGeometry(QRect(25, 130, 51, 26))
+        self.label_190.setFont(font2)
+        self.label_191 = QLabel(self.radar_groupbox_31)
+        self.label_191.setObjectName(u"label_191")
+        self.label_191.setGeometry(QRect(210, 130, 61, 26))
+        self.label_191.setFont(font2)
+        self.label_192 = QLabel(self.radar_groupbox_31)
+        self.label_192.setObjectName(u"label_192")
+        self.label_192.setGeometry(QRect(210, 80, 51, 26))
+        self.label_192.setFont(font2)
+        self.rblkCTL = QComboBox(self.radar_groupbox_31)
+        self.rblkCTL.addItem("")
+        self.rblkCTL.addItem("")
+        self.rblkCTL.addItem("")
+        self.rblkCTL.addItem("")
+        self.rblkCTL.setObjectName(u"rblkCTL")
+        self.rblkCTL.setGeometry(QRect(100, 82, 62, 22))
+        self.biteCNT = QComboBox(self.radar_groupbox_31)
+        self.biteCNT.addItem("")
+        self.biteCNT.addItem("")
+        self.biteCNT.addItem("")
+        self.biteCNT.addItem("")
+        self.biteCNT.setObjectName(u"biteCNT")
+        self.biteCNT.setGeometry(QRect(100, 132, 62, 22))
+        self.swlRCTL = QComboBox(self.radar_groupbox_31)
+        self.swlRCTL.addItem("")
+        self.swlRCTL.addItem("")
+        self.swlRCTL.addItem("")
+        self.swlRCTL.addItem("")
+        self.swlRCTL.setObjectName(u"swlRCTL")
+        self.swlRCTL.setGeometry(QRect(290, 132, 62, 22))
+        self.lblkCTL = QComboBox(self.radar_groupbox_31)
+        self.lblkCTL.addItem("")
+        self.lblkCTL.addItem("")
+        self.lblkCTL.addItem("")
+        self.lblkCTL.addItem("")
+        self.lblkCTL.setObjectName(u"lblkCTL")
+        self.lblkCTL.setGeometry(QRect(290, 82, 62, 22))
+        self.leftPrt = QCheckBox(self.radar_groupbox_31)
+        self.leftPrt.setObjectName(u"leftPrt")
+        self.leftPrt.setGeometry(QRect(410, 30, 76, 20))
+        self.righttPrt = QCheckBox(self.radar_groupbox_31)
+        self.righttPrt.setObjectName(u"righttPrt")
+        self.righttPrt.setGeometry(QRect(410, 82, 76, 20))
+        self.btnRND = QPushButton(self.radar_groupbox_31)
+        self.btnRND.setObjectName(u"btnRND")
+        self.btnRND.setGeometry(QRect(420, 140, 71, 25))
+        self.btnRND.setMaximumSize(QSize(16777215, 25))
+        self.blkSw = QCheckBox(self.radar_groupbox_31)
+        self.blkSw.setObjectName(u"blkSw")
+        self.blkSw.setGeometry(QRect(25, 30, 76, 20))
+        self.trCTCL = QCheckBox(self.radar_groupbox_31)
+        self.trCTCL.setObjectName(u"trCTCL")
+        self.trCTCL.setGeometry(QRect(210, 30, 76, 20))
+        self.masterLabel = QLabel(self.groupBox)
+        self.masterLabel.setObjectName(u"masterLabel")
+        self.masterLabel.setGeometry(QRect(790, 142, 51, 26))
+        self.masterLabel.setFont(font1)
+        self.masterLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.masterCheck = QLabel(self.groupBox)
+        self.masterCheck.setObjectName(u"masterCheck")
+        self.masterCheck.setGeometry(QRect(860, 136, 41, 41))
+        self.masterCheck.setFont(font1)
+        self.masterCheck.setPixmap(QPixmap(u":/resources/switch.png"))
+        self.masterCheck.setScaledContents(True)
+        self.masterCheck.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.rndCheck = QLabel(self.groupBox)
+        self.rndCheck.setObjectName(u"rndCheck")
+        self.rndCheck.setGeometry(QRect(860, 136, 41, 41))
+        self.rndCheck.setFont(font1)
+        self.rndCheck.setPixmap(QPixmap(u":/resources/switch (1).png"))
+        self.rndCheck.setScaledContents(True)
+        self.rndCheck.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.rndLabel = QLabel(self.groupBox)
+        self.rndLabel.setObjectName(u"rndLabel")
+        self.rndLabel.setGeometry(QRect(920, 142, 51, 26))
+        self.rndLabel.setFont(font1)
+        self.rndLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.rndGB.raise_()
+        self.masterGB.raise_()
+        self.rndCheck.raise_()
+        self.masterCheck.raise_()
+        self.radar_groupbox_12.raise_()
+        self.radar_groupbox_13.raise_()
+        self.radar_groupbox_21.raise_()
+        self.radar_groupbox_22.raise_()
+        self.radar_groupbox_25.raise_()
+        self.btnGetStatus.raise_()
+        self.btnClear.raise_()
+        self.groupBox_2.raise_()
+        self.masterLabel.raise_()
+        self.rndLabel.raise_()
 
         self.retranslateUi(Form)
 
@@ -5272,7 +5530,7 @@ class Ui_Form(object):
         self.attRxAllCh.setItemText(63, QCoreApplication.translate("Form", u"31.5", None))
 
         self.attRxAllCh.setCurrentText(QCoreApplication.translate("Form", u"0", None))
-        self.radar_groupbox_14.setTitle(QCoreApplication.translate("Form", u"Phase", None))
+        self.masterGB.setTitle(QCoreApplication.translate("Form", u"Phase", None))
         self.radar_groupbox_19.setTitle(QCoreApplication.translate("Form", u"TX Channel", None))
         self.label_111.setText(QCoreApplication.translate("Form", u"CH 1", None))
         self.label_112.setText(QCoreApplication.translate("Form", u"CH 3", None))
@@ -6495,7 +6753,7 @@ class Ui_Form(object):
         self.label_67.setText(QCoreApplication.translate("Form", u"Channel ID", None))
         self.chId.setItemText(0, QCoreApplication.translate("Form", u"1", None))
         self.chId.setItemText(1, QCoreApplication.translate("Form", u"2", None))
-        self.chId.setItemText(2, QCoreApplication.translate("Form", u"2", None))
+        self.chId.setItemText(2, QCoreApplication.translate("Form", u"3", None))
         self.chId.setItemText(3, QCoreApplication.translate("Form", u"4", None))
         self.chId.setItemText(4, QCoreApplication.translate("Form", u"5", None))
         self.chId.setItemText(5, QCoreApplication.translate("Form", u"6", None))
@@ -6575,5 +6833,39 @@ class Ui_Form(object):
 "li.checked::marker { content: \"\\2612\"; }\n"
 "</style></head><body style=\" font-family:'Segoe UI'; font-size:10px; font-weight:400; font-style:normal;\">\n"
 "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p></body></html>", None))
-    # retranslateUi
+        self.rndGB.setTitle(QCoreApplication.translate("Form", u"RND", None))
+        self.radar_groupbox_31.setTitle(QCoreApplication.translate("Form", u"Controls", None))
+        self.label_188.setText(QCoreApplication.translate("Form", u"RBLK CTL", None))
+        self.label_190.setText(QCoreApplication.translate("Form", u"BITE CNT", None))
+        self.label_191.setText(QCoreApplication.translate("Form", u"SWL RCTL", None))
+        self.label_192.setText(QCoreApplication.translate("Form", u"LBLK CTL", None))
+        self.rblkCTL.setItemText(0, QCoreApplication.translate("Form", u"0", None))
+        self.rblkCTL.setItemText(1, QCoreApplication.translate("Form", u"1", None))
+        self.rblkCTL.setItemText(2, QCoreApplication.translate("Form", u"2", None))
+        self.rblkCTL.setItemText(3, QCoreApplication.translate("Form", u"3", None))
 
+        self.biteCNT.setItemText(0, QCoreApplication.translate("Form", u"0", None))
+        self.biteCNT.setItemText(1, QCoreApplication.translate("Form", u"1", None))
+        self.biteCNT.setItemText(2, QCoreApplication.translate("Form", u"2", None))
+        self.biteCNT.setItemText(3, QCoreApplication.translate("Form", u"3", None))
+
+        self.swlRCTL.setItemText(0, QCoreApplication.translate("Form", u"0", None))
+        self.swlRCTL.setItemText(1, QCoreApplication.translate("Form", u"1", None))
+        self.swlRCTL.setItemText(2, QCoreApplication.translate("Form", u"2", None))
+        self.swlRCTL.setItemText(3, QCoreApplication.translate("Form", u"3", None))
+
+        self.lblkCTL.setItemText(0, QCoreApplication.translate("Form", u"0", None))
+        self.lblkCTL.setItemText(1, QCoreApplication.translate("Form", u"1", None))
+        self.lblkCTL.setItemText(2, QCoreApplication.translate("Form", u"2", None))
+        self.lblkCTL.setItemText(3, QCoreApplication.translate("Form", u"3", None))
+
+        self.leftPrt.setText(QCoreApplication.translate("Form", u"LEFT PRT", None))
+        self.righttPrt.setText(QCoreApplication.translate("Form", u"RIGHT PRT", None))
+        self.btnRND.setText(QCoreApplication.translate("Form", u"Send", None))
+        self.blkSw.setText(QCoreApplication.translate("Form", u"BLK SW", None))
+        self.trCTCL.setText(QCoreApplication.translate("Form", u"TR CTL", None))
+        self.masterLabel.setText(QCoreApplication.translate("Form", u"Master", None))
+        self.masterCheck.setText("")
+        self.rndCheck.setText("")
+        self.rndLabel.setText(QCoreApplication.translate("Form", u"RND", None))
+    # retranslateUi
